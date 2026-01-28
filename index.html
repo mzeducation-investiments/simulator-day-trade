@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulador Day Trade</title>
+    <title>Simulador Day Trade Pro</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=IBM+Plex+Mono:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -13,6 +13,7 @@
             --accent-green: #00ff88;
             --accent-red: #ff3366;
             --accent-blue: #00d4ff;
+            --accent-yellow: #ffd700;
             --text-primary: #e8edf5;
             --text-secondary: #8b92a8;
             --border-color: #2a3348;
@@ -37,7 +38,7 @@
         }
 
         .container {
-            max-width: 900px;
+            max-width: 1400px;
             margin: 0 auto;
             animation: fadeIn 0.8s ease-out;
         }
@@ -88,6 +89,48 @@
             letter-spacing: 3px;
         }
 
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid var(--border-color);
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+            position: relative;
+        }
+
+        .tab:hover {
+            color: var(--text-primary);
+        }
+
+        .tab.active {
+            color: var(--accent-green);
+            border-bottom-color: var(--accent-green);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
         .card {
             background: var(--bg-card);
             border-radius: 16px;
@@ -129,6 +172,9 @@
             color: var(--accent-blue);
             text-transform: uppercase;
             letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         .form-grid {
@@ -151,7 +197,7 @@
             font-weight: 600;
         }
 
-        input {
+        input, select {
             background: var(--bg-input);
             border: 1px solid var(--border-color);
             border-radius: 8px;
@@ -163,7 +209,7 @@
             outline: none;
         }
 
-        input:focus {
+        input:focus, select:focus {
             border-color: var(--accent-green);
             box-shadow: 0 0 0 3px rgba(0, 255, 136, 0.1);
             background: var(--bg-dark);
@@ -189,7 +235,6 @@
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
-            margin-top: 1rem;
         }
 
         .btn::before {
@@ -219,24 +264,27 @@
             transform: translateY(0);
         }
 
+        .btn-secondary {
+            background: var(--bg-input);
+            color: var(--text-primary);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--accent-red) 0%, #cc0044 100%);
+            color: var(--text-primary);
+        }
+
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+        }
+
         .results {
             display: none;
-            animation: slideIn 0.5s ease-out;
         }
 
         .results.show {
             display: block;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
         }
 
         .result-row {
@@ -331,24 +379,6 @@
             color: var(--accent-blue);
         }
 
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 2rem;
-            }
-
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .profit-value {
-                font-size: 2rem;
-            }
-
-            body {
-                padding: 1rem;
-            }
-        }
-
         .ticker-display {
             text-align: center;
             margin: 1rem 0;
@@ -365,102 +395,730 @@
             color: var(--accent-green);
             letter-spacing: 3px;
         }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent-green);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--text-primary);
+        }
+
+        .stat-value.green {
+            color: var(--accent-green);
+        }
+
+        .stat-value.red {
+            color: var(--accent-red);
+        }
+
+        .stat-value.blue {
+            color: var(--accent-blue);
+        }
+
+        .history-item {
+            background: var(--bg-input);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-left: 3px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .history-item:hover {
+            background: var(--bg-card);
+            border-left-color: var(--accent-green);
+        }
+
+        .history-item.profit {
+            border-left-color: var(--accent-green);
+        }
+
+        .history-item.loss {
+            border-left-color: var(--accent-red);
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .history-ticker {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+        }
+
+        .history-date {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .history-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        .history-detail {
+            color: var(--text-secondary);
+        }
+
+        .history-detail strong {
+            color: var(--text-primary);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .chart-container {
+            background: var(--bg-input);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            min-height: 300px;
+            position: relative;
+        }
+
+        .chart-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 300px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .scenario-card {
+            background: var(--bg-input);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 2px solid var(--border-color);
+        }
+
+        .scenario-card.selected {
+            border-color: var(--accent-green);
+        }
+
+        .scenario-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--accent-blue);
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+        }
+
+        .sl-tp-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .sl-tp-card {
+            background: var(--bg-input);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 2px solid var(--border-color);
+        }
+
+        .sl-tp-card.stop-loss {
+            border-color: var(--accent-red);
+        }
+
+        .sl-tp-card.take-profit {
+            border-color: var(--accent-green);
+        }
+
+        .sl-tp-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+        }
+
+        .sl-tp-card.stop-loss .sl-tp-title {
+            color: var(--accent-red);
+        }
+
+        .sl-tp-card.take-profit .sl-tp-title {
+            color: var(--accent-green);
+        }
+
+        .ratio-display {
+            text-align: center;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, rgba(0, 212, 255, 0.1) 100%);
+            border-radius: 12px;
+            border: 1px solid var(--accent-yellow);
+            margin-top: 1.5rem;
+        }
+
+        .ratio-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 0.5rem;
+        }
+
+        .ratio-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--accent-yellow);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-group .btn {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border-left: 4px solid;
+        }
+
+        .alert-info {
+            background: rgba(0, 212, 255, 0.1);
+            border-left-color: var(--accent-blue);
+            color: var(--accent-blue);
+        }
+
+        .alert-warning {
+            background: rgba(255, 215, 0, 0.1);
+            border-left-color: var(--accent-yellow);
+            color: var(--accent-yellow);
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .profit-value {
+                font-size: 2rem;
+            }
+
+            body {
+                padding: 1rem;
+            }
+
+            .tabs {
+                overflow-x: auto;
+            }
+
+            .tab {
+                white-space: nowrap;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>DAY TRADE</h1>
-            <div class="subtitle">Simulador de Operações</div>
+            <h1>DAY TRADE PRO</h1>
+            <div class="subtitle">Simulador Profissional de Operações</div>
         </header>
 
-        <div class="card">
-            <div class="card-title">📊 Dados da Operação</div>
-            
-            <div class="form-group">
-                <label for="ticker">Nome da Empresa / Ticker</label>
-                <input type="text" id="ticker" placeholder="Ex: PETR4, VALE3, ITUB4" />
-            </div>
-
-            <div class="form-grid">
-                <div class="form-group">
-                    <label for="buyQty">Quantidade Comprada</label>
-                    <input type="number" id="buyQty" placeholder="100" min="0" step="1" />
-                </div>
-
-                <div class="form-group">
-                    <label for="buyPrice">Preço de Compra (R$)</label>
-                    <input type="number" id="buyPrice" placeholder="25.50" min="0" step="0.01" />
-                </div>
-            </div>
-
-            <div class="form-grid">
-                <div class="form-group">
-                    <label for="sellQty">Quantidade Vendida</label>
-                    <input type="number" id="sellQty" placeholder="100" min="0" step="1" />
-                </div>
-
-                <div class="form-group">
-                    <label for="sellPrice">Preço de Venda (R$)</label>
-                    <input type="number" id="sellPrice" placeholder="26.00" min="0" step="0.01" />
-                </div>
-            </div>
-
-            <button class="btn" onclick="calcular()">
-                <span style="position: relative; z-index: 1;">Calcular Resultado</span>
-            </button>
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('operacao')">📊 Nova Operação</button>
+            <button class="tab" onclick="switchTab('stoplosstarget')">🎯 Stop/Target</button>
+            <button class="tab" onclick="switchTab('comparacao')">⚖️ Comparação</button>
+            <button class="tab" onclick="switchTab('historico')">📜 Histórico</button>
+            <button class="tab" onclick="switchTab('dashboard')">📈 Dashboard</button>
+            <button class="tab" onclick="switchTab('configuracoes')">⚙️ Configurações</button>
         </div>
 
-        <div id="results" class="results">
+        <!-- ABA: NOVA OPERAÇÃO -->
+        <div id="tab-operacao" class="tab-content active">
             <div class="card">
-                <div class="ticker-display" id="tickerDisplay" style="display: none;">
-                    <div class="ticker-symbol" id="tickerSymbol"></div>
-                </div>
-
-                <div class="card-title">💰 Resumo da Operação</div>
+                <div class="card-title">📊 Dados da Operação</div>
                 
-                <div class="result-row">
-                    <span class="result-label">Total Comprado</span>
-                    <span class="result-value" id="totalCompra">R$ 0,00</span>
+                <div class="form-group">
+                    <label for="ticker">Nome da Empresa / Ticker</label>
+                    <input type="text" id="ticker" placeholder="Ex: PETR4, VALE3, ITUB4" />
                 </div>
 
-                <div class="result-row">
-                    <span class="result-label">Total Vendido</span>
-                    <span class="result-value" id="totalVenda">R$ 0,00</span>
-                </div>
-
-                <div class="result-row">
-                    <span class="result-label">Resultado Bruto</span>
-                    <span class="result-value" id="resultadoBruto">R$ 0,00</span>
-                </div>
-
-                <div class="costs-grid">
-                    <div class="cost-card">
-                        <div class="cost-label">Liquidação/CCP (0,018%)</div>
-                        <div class="cost-value" id="custoLiquidacao">R$ 0,00</div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="buyQty">Quantidade Comprada</label>
+                        <input type="number" id="buyQty" placeholder="100" min="0" step="1" />
                     </div>
 
-                    <div class="cost-card">
-                        <div class="cost-label">Emolumentos (0,005%)</div>
-                        <div class="cost-value" id="custoEmolumentos">R$ 0,00</div>
-                    </div>
-
-                    <div class="cost-card">
-                        <div class="cost-label">Total de Custos</div>
-                        <div class="cost-value" id="custoTotal">R$ 0,00</div>
+                    <div class="form-group">
+                        <label for="buyPrice">Preço de Compra (R$)</label>
+                        <input type="number" id="buyPrice" placeholder="25.50" min="0" step="0.01" />
                     </div>
                 </div>
 
-                <div class="profit-section">
-                    <div class="profit-label">Lucro/Prejuízo Líquido</div>
-                    <div class="profit-value" id="lucroLiquido">R$ 0,00</div>
-                    <div class="profit-percentage" id="percentualLucro">0.00%</div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="sellQty">Quantidade Vendida</label>
+                        <input type="number" id="sellQty" placeholder="100" min="0" step="1" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="sellPrice">Preço de Venda (R$)</label>
+                        <input type="number" id="sellPrice" placeholder="26.00" min="0" step="0.01" />
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn" onclick="calcular()">
+                        <span style="position: relative; z-index: 1;">Calcular Resultado</span>
+                    </button>
+                    <button class="btn btn-secondary" onclick="salvarOperacao()">
+                        <span style="position: relative; z-index: 1;">💾 Salvar no Histórico</span>
+                    </button>
+                </div>
+            </div>
+
+            <div id="results" class="results">
+                <div class="card">
+                    <div class="ticker-display" id="tickerDisplay" style="display: none;">
+                        <div class="ticker-symbol" id="tickerSymbol"></div>
+                    </div>
+
+                    <div class="card-title">💰 Resumo da Operação</div>
+                    
+                    <div class="result-row">
+                        <span class="result-label">Total Comprado</span>
+                        <span class="result-value" id="totalCompra">R$ 0,00</span>
+                    </div>
+
+                    <div class="result-row">
+                        <span class="result-label">Total Vendido</span>
+                        <span class="result-value" id="totalVenda">R$ 0,00</span>
+                    </div>
+
+                    <div class="result-row">
+                        <span class="result-label">Resultado Bruto</span>
+                        <span class="result-value" id="resultadoBruto">R$ 0,00</span>
+                    </div>
+
+                    <div class="costs-grid">
+                        <div class="cost-card">
+                            <div class="cost-label">Liquidação/CCP</div>
+                            <div class="cost-value" id="custoLiquidacao">R$ 0,00</div>
+                        </div>
+
+                        <div class="cost-card">
+                            <div class="cost-label">Emolumentos</div>
+                            <div class="cost-value" id="custoEmolumentos">R$ 0,00</div>
+                        </div>
+
+                        <div class="cost-card">
+                            <div class="cost-label">IR (20%)</div>
+                            <div class="cost-value" id="custoIR">R$ 0,00</div>
+                        </div>
+
+                        <div class="cost-card">
+                            <div class="cost-label">Total de Custos</div>
+                            <div class="cost-value" id="custoTotal">R$ 0,00</div>
+                        </div>
+                    </div>
+
+                    <div class="profit-section">
+                        <div class="profit-label">Lucro/Prejuízo Líquido</div>
+                        <div class="profit-value" id="lucroLiquido">R$ 0,00</div>
+                        <div class="profit-percentage" id="percentualLucro">0.00%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ABA: STOP LOSS / TAKE PROFIT -->
+        <div id="tab-stoplosstarget" class="tab-content">
+            <div class="card">
+                <div class="card-title">🎯 Calculadora de Stop Loss e Take Profit</div>
+                
+                <div class="alert alert-info">
+                    💡 Defina seus pontos de saída antes de operar para gerenciar o risco
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="sltp-ticker">Ticker</label>
+                        <input type="text" id="sltp-ticker" placeholder="Ex: PETR4" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="sltp-entry">Preço de Entrada (R$)</label>
+                        <input type="number" id="sltp-entry" placeholder="25.50" min="0" step="0.01" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="sltp-qty">Quantidade</label>
+                        <input type="number" id="sltp-qty" placeholder="100" min="0" step="1" />
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="sltp-stop-percent">Stop Loss (%)</label>
+                        <input type="number" id="sltp-stop-percent" placeholder="2" min="0" step="0.1" value="2" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="sltp-target-percent">Take Profit (%)</label>
+                        <input type="number" id="sltp-target-percent" placeholder="4" min="0" step="0.1" value="4" />
+                    </div>
+                </div>
+
+                <button class="btn" onclick="calcularStopTarget()">
+                    <span style="position: relative; z-index: 1;">Calcular Stop e Target</span>
+                </button>
+
+                <div id="sltp-results" style="display: none; margin-top: 2rem;">
+                    <div class="sl-tp-grid">
+                        <div class="sl-tp-card stop-loss">
+                            <div class="sl-tp-title">🛑 Stop Loss</div>
+                            <div class="result-row">
+                                <span class="result-label">Preço</span>
+                                <span class="result-value" id="sltp-stop-price">R$ 0,00</span>
+                            </div>
+                            <div class="result-row">
+                                <span class="result-label">Perda Máxima</span>
+                                <span class="result-value" id="sltp-stop-loss">R$ 0,00</span>
+                            </div>
+                        </div>
+
+                        <div class="sl-tp-card take-profit">
+                            <div class="sl-tp-title">🎯 Take Profit</div>
+                            <div class="result-row">
+                                <span class="result-label">Preço</span>
+                                <span class="result-value" id="sltp-target-price">R$ 0,00</span>
+                            </div>
+                            <div class="result-row">
+                                <span class="result-label">Ganho Esperado</span>
+                                <span class="result-value" id="sltp-target-gain">R$ 0,00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ratio-display">
+                        <div class="ratio-label">Relação Risco x Retorno</div>
+                        <div class="ratio-value" id="sltp-ratio">1:2</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ABA: COMPARAÇÃO -->
+        <div id="tab-comparacao" class="tab-content">
+            <div class="card">
+                <div class="card-title">⚖️ Comparação de Cenários</div>
+                
+                <div class="alert alert-info">
+                    💡 Compare diferentes pontos de saída para a mesma operação
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="comp-ticker">Ticker</label>
+                        <input type="text" id="comp-ticker" placeholder="Ex: PETR4" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="comp-qty">Quantidade</label>
+                        <input type="number" id="comp-qty" placeholder="100" min="0" step="1" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="comp-buy">Preço de Compra (R$)</label>
+                        <input type="number" id="comp-buy" placeholder="25.50" min="0" step="0.01" />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Cenários de Venda (separe por vírgula)</label>
+                    <input type="text" id="comp-scenarios" placeholder="Ex: 24.00, 25.50, 26.50, 28.00" />
+                </div>
+
+                <button class="btn" onclick="compararCenarios()">
+                    <span style="position: relative; z-index: 1;">Comparar Cenários</span>
+                </button>
+
+                <div id="comparison-results" style="display: none; margin-top: 2rem;">
+                    <div class="comparison-grid" id="comparison-grid"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ABA: HISTÓRICO -->
+        <div id="tab-historico" class="tab-content">
+            <div class="card">
+                <div class="card-title">📜 Histórico de Operações</div>
+                
+                <div class="filters">
+                    <div class="filter-group">
+                        <label for="filter-ticker">Filtrar por Ticker</label>
+                        <input type="text" id="filter-ticker" placeholder="Digite o ticker..." oninput="filtrarHistorico()" />
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="filter-type">Tipo de Resultado</label>
+                        <select id="filter-type" onchange="filtrarHistorico()">
+                            <option value="all">Todos</option>
+                            <option value="profit">Apenas Lucros</option>
+                            <option value="loss">Apenas Prejuízos</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-secondary btn-small" onclick="exportarCSV()">
+                        <span style="position: relative; z-index: 1;">📥 Exportar CSV</span>
+                    </button>
+                    <button class="btn btn-danger btn-small" onclick="limparHistorico()">
+                        <span style="position: relative; z-index: 1;">🗑️ Limpar Histórico</span>
+                    </button>
+                </div>
+
+                <div id="history-list" style="margin-top: 2rem;">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📭</div>
+                        <p>Nenhuma operação registrada ainda</p>
+                        <p style="font-size: 0.85rem; margin-top: 0.5rem;">Faça uma operação e salve no histórico para começar</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ABA: DASHBOARD -->
+        <div id="tab-dashboard" class="tab-content">
+            <div class="card">
+                <div class="card-title">📈 Dashboard de Performance</div>
+                
+                <div class="stats-grid" id="dashboard-stats">
+                    <div class="stat-card">
+                        <div class="stat-label">Total de Operações</div>
+                        <div class="stat-value blue" id="stat-total">0</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-label">Win Rate</div>
+                        <div class="stat-value" id="stat-winrate">0%</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-label">Lucro Total</div>
+                        <div class="stat-value green" id="stat-profit">R$ 0,00</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-label">Prejuízo Total</div>
+                        <div class="stat-value red" id="stat-loss">R$ 0,00</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-label">Resultado Líquido</div>
+                        <div class="stat-value" id="stat-net">R$ 0,00</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-label">Lucro Médio</div>
+                        <div class="stat-value" id="stat-avg-profit">R$ 0,00</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-label">Perda Média</div>
+                        <div class="stat-value" id="stat-avg-loss">R$ 0,00</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-label">Payoff Ratio</div>
+                        <div class="stat-value" id="stat-payoff">0.00</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-label">Maior Ganho</div>
+                        <div class="stat-value green" id="stat-best">R$ 0,00</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-label">Maior Perda</div>
+                        <div class="stat-value red" id="stat-worst">R$ 0,00</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-label">Profit Factor</div>
+                        <div class="stat-value" id="stat-profit-factor">0.00</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-label">Maior Sequência</div>
+                        <div class="stat-value" id="stat-streak">0 vitórias</div>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <div class="chart-placeholder">
+                        📊 Curva de Capital - Realize operações para visualizar o gráfico
+                    </div>
+                    <canvas id="equity-curve" style="display: none;"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- ABA: CONFIGURAÇÕES -->
+        <div id="tab-configuracoes" class="tab-content">
+            <div class="card">
+                <div class="card-title">⚙️ Configurações de Taxas</div>
+                
+                <div class="alert alert-warning">
+                    ⚠️ Altere as taxas de acordo com sua corretora. Os valores padrão são da B3.
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="config-liquidacao">Taxa Liquidação/CCP (%)</label>
+                        <input type="number" id="config-liquidacao" step="0.001" value="0.018" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="config-emolumentos">Taxa Emolumentos (%)</label>
+                        <input type="number" id="config-emolumentos" step="0.001" value="0.005" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="config-ir">Taxa IR sobre Lucro (%)</label>
+                        <input type="number" id="config-ir" step="0.1" value="20" />
+                    </div>
+                </div>
+
+                <button class="btn" onclick="salvarConfiguracoes()">
+                    <span style="position: relative; z-index: 1;">💾 Salvar Configurações</span>
+                </button>
+
+                <div style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--border-color);">
+                    <h3 style="margin-bottom: 1rem; color: var(--accent-blue);">Informações das Taxas</h3>
+                    <div style="color: var(--text-secondary); line-height: 1.8;">
+                        <p><strong>Liquidação/CCP:</strong> Taxa cobrada pela câmara de compensação (B3). Padrão: 0,018% sobre (compra + venda)</p>
+                        <p><strong>Emolumentos:</strong> Taxa da bolsa de valores. Padrão: 0,005% sobre (compra + venda)</p>
+                        <p><strong>IR:</strong> Imposto de Renda sobre lucro em day trade. Padrão: 20% sobre o lucro líquido</p>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
+        let config = {
+            taxaLiquidacao: 0.018,
+            taxaEmolumentos: 0.005,
+            taxaIR: 20
+        };
+
+        let ultimoCalculo = null;
+
+        function carregarConfiguracoes() {
+            const savedConfig = localStorage.getItem('daytradeConfig');
+            if (savedConfig) {
+                config = JSON.parse(savedConfig);
+                document.getElementById('config-liquidacao').value = config.taxaLiquidacao;
+                document.getElementById('config-emolumentos').value = config.taxaEmolumentos;
+                document.getElementById('config-ir').value = config.taxaIR;
+            }
+        }
+
+        function salvarConfiguracoes() {
+            config.taxaLiquidacao = parseFloat(document.getElementById('config-liquidacao').value);
+            config.taxaEmolumentos = parseFloat(document.getElementById('config-emolumentos').value);
+            config.taxaIR = parseFloat(document.getElementById('config-ir').value);
+            
+            localStorage.setItem('daytradeConfig', JSON.stringify(config));
+            alert('✅ Configurações salvas com sucesso!');
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+            
+            if (tabName === 'historico') {
+                carregarHistorico();
+            } else if (tabName === 'dashboard') {
+                atualizarDashboard();
+            }
+        }
+
         function formatarMoeda(valor) {
             return valor.toLocaleString('pt-BR', {
                 style: 'currency',
@@ -474,38 +1132,62 @@
             return valor.toFixed(2) + '%';
         }
 
+        function formatarData(date) {
+            return new Date(date).toLocaleString('pt-BR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
         function calcular() {
-            // Obter valores dos inputs
             const ticker = document.getElementById('ticker').value.trim().toUpperCase();
             const buyQty = parseFloat(document.getElementById('buyQty').value) || 0;
             const buyPrice = parseFloat(document.getElementById('buyPrice').value) || 0;
             const sellQty = parseFloat(document.getElementById('sellQty').value) || 0;
             const sellPrice = parseFloat(document.getElementById('sellPrice').value) || 0;
 
-            // Validação básica
             if (buyQty <= 0 || buyPrice <= 0 || sellQty <= 0 || sellPrice <= 0) {
                 alert('Por favor, preencha todos os campos com valores válidos.');
                 return;
             }
 
-            // Cálculos
             const totalCompra = buyQty * buyPrice;
             const totalVenda = sellQty * sellPrice;
             const resultadoBruto = totalVenda - totalCompra;
 
-            // Custos operacionais
             const baseCalculo = totalCompra + totalVenda;
-            const custoLiquidacao = baseCalculo * 0.00018; // 0,018%
-            const custoEmolumentos = baseCalculo * 0.00005; // 0,005%
-            const custoTotal = custoLiquidacao + custoEmolumentos;
-
-            // Lucro líquido
-            const lucroLiquido = resultadoBruto - custoTotal;
+            const custoLiquidacao = baseCalculo * (config.taxaLiquidacao / 100);
+            const custoEmolumentos = baseCalculo * (config.taxaEmolumentos / 100);
             
-            // Percentual de lucro sobre o valor investido
+            let custoIR = 0;
+            if (resultadoBruto > 0) {
+                custoIR = resultadoBruto * (config.taxaIR / 100);
+            }
+            
+            const custoTotal = custoLiquidacao + custoEmolumentos + custoIR;
+            const lucroLiquido = resultadoBruto - custoTotal;
             const percentualLucro = (lucroLiquido / totalCompra) * 100;
 
-            // Exibir ticker se fornecido
+            ultimoCalculo = {
+                ticker,
+                buyQty,
+                buyPrice,
+                sellQty,
+                sellPrice,
+                totalCompra,
+                totalVenda,
+                resultadoBruto,
+                custoLiquidacao,
+                custoEmolumentos,
+                custoIR,
+                custoTotal,
+                lucroLiquido,
+                percentualLucro
+            };
+
             if (ticker) {
                 document.getElementById('tickerDisplay').style.display = 'block';
                 document.getElementById('tickerSymbol').textContent = ticker;
@@ -513,19 +1195,18 @@
                 document.getElementById('tickerDisplay').style.display = 'none';
             }
 
-            // Atualizar valores na interface
             document.getElementById('totalCompra').textContent = formatarMoeda(totalCompra);
             document.getElementById('totalVenda').textContent = formatarMoeda(totalVenda);
             document.getElementById('resultadoBruto').textContent = formatarMoeda(resultadoBruto);
             document.getElementById('custoLiquidacao').textContent = formatarMoeda(custoLiquidacao);
             document.getElementById('custoEmolumentos').textContent = formatarMoeda(custoEmolumentos);
+            document.getElementById('custoIR').textContent = formatarMoeda(custoIR);
             document.getElementById('custoTotal').textContent = formatarMoeda(custoTotal);
             
             const lucroElement = document.getElementById('lucroLiquido');
             lucroElement.textContent = formatarMoeda(lucroLiquido);
-            
-            // Adicionar classe de cor baseada no resultado
             lucroElement.className = 'profit-value';
+            
             if (lucroLiquido > 0) {
                 lucroElement.classList.add('positive');
             } else if (lucroLiquido < 0) {
@@ -533,11 +1214,8 @@
             }
 
             document.getElementById('percentualLucro').textContent = formatarPercentual(percentualLucro);
-
-            // Mostrar seção de resultados
             document.getElementById('results').classList.add('show');
 
-            // Scroll suave para os resultados
             setTimeout(() => {
                 document.getElementById('results').scrollIntoView({ 
                     behavior: 'smooth', 
@@ -546,9 +1224,392 @@
             }, 100);
         }
 
-        // Permitir calcular ao pressionar Enter
+        function calcularStopTarget() {
+            const ticker = document.getElementById('sltp-ticker').value.trim().toUpperCase();
+            const entry = parseFloat(document.getElementById('sltp-entry').value) || 0;
+            const qty = parseFloat(document.getElementById('sltp-qty').value) || 0;
+            const stopPercent = parseFloat(document.getElementById('sltp-stop-percent').value) || 0;
+            const targetPercent = parseFloat(document.getElementById('sltp-target-percent').value) || 0;
+
+            if (entry <= 0 || qty <= 0 || stopPercent <= 0 || targetPercent <= 0) {
+                alert('Por favor, preencha todos os campos com valores válidos.');
+                return;
+            }
+
+            const stopPrice = entry * (1 - stopPercent / 100);
+            const targetPrice = entry * (1 + targetPercent / 100);
+            
+            const stopLoss = (entry - stopPrice) * qty;
+            const targetGain = (targetPrice - entry) * qty;
+            
+            const ratio = targetPercent / stopPercent;
+
+            document.getElementById('sltp-stop-price').textContent = formatarMoeda(stopPrice);
+            document.getElementById('sltp-stop-loss').textContent = formatarMoeda(stopLoss);
+            document.getElementById('sltp-target-price').textContent = formatarMoeda(targetPrice);
+            document.getElementById('sltp-target-gain').textContent = formatarMoeda(targetGain);
+            document.getElementById('sltp-ratio').textContent = `1:${ratio.toFixed(2)}`;
+
+            document.getElementById('sltp-results').style.display = 'block';
+        }
+
+        function compararCenarios() {
+            const ticker = document.getElementById('comp-ticker').value.trim().toUpperCase();
+            const qty = parseFloat(document.getElementById('comp-qty').value) || 0;
+            const buyPrice = parseFloat(document.getElementById('comp-buy').value) || 0;
+            const scenariosInput = document.getElementById('comp-scenarios').value;
+
+            if (qty <= 0 || buyPrice <= 0 || !scenariosInput) {
+                alert('Por favor, preencha todos os campos.');
+                return;
+            }
+
+            const scenarios = scenariosInput.split(',').map(s => parseFloat(s.trim())).filter(s => s > 0);
+            
+            if (scenarios.length === 0) {
+                alert('Por favor, insira preços de venda válidos.');
+                return;
+            }
+
+            const grid = document.getElementById('comparison-grid');
+            grid.innerHTML = '';
+
+            scenarios.forEach((sellPrice, index) => {
+                const totalCompra = qty * buyPrice;
+                const totalVenda = qty * sellPrice;
+                const resultadoBruto = totalVenda - totalCompra;
+
+                const baseCalculo = totalCompra + totalVenda;
+                const custoLiquidacao = baseCalculo * (config.taxaLiquidacao / 100);
+                const custoEmolumentos = baseCalculo * (config.taxaEmolumentos / 100);
+                
+                let custoIR = 0;
+                if (resultadoBruto > 0) {
+                    custoIR = resultadoBruto * (config.taxaIR / 100);
+                }
+                
+                const custoTotal = custoLiquidacao + custoEmolumentos + custoIR;
+                const lucroLiquido = resultadoBruto - custoTotal;
+                const percentualLucro = (lucroLiquido / totalCompra) * 100;
+
+                const card = document.createElement('div');
+                card.className = 'scenario-card';
+                card.innerHTML = `
+                    <div class="scenario-title">Cenário ${index + 1}</div>
+                    <div class="result-row">
+                        <span class="result-label">Preço de Venda</span>
+                        <span class="result-value">${formatarMoeda(sellPrice)}</span>
+                    </div>
+                    <div class="result-row">
+                        <span class="result-label">Resultado Bruto</span>
+                        <span class="result-value">${formatarMoeda(resultadoBruto)}</span>
+                    </div>
+                    <div class="result-row">
+                        <span class="result-label">Custos Totais</span>
+                        <span class="result-value">${formatarMoeda(custoTotal)}</span>
+                    </div>
+                    <div class="result-row" style="border-top: 2px solid var(--border-color); padding-top: 1rem; margin-top: 1rem;">
+                        <span class="result-label">Lucro Líquido</span>
+                        <span class="result-value" style="color: ${lucroLiquido >= 0 ? 'var(--accent-green)' : 'var(--accent-red)'}; font-size: 1.3rem;">
+                            ${formatarMoeda(lucroLiquido)}
+                        </span>
+                    </div>
+                    <div style="text-align: center; color: var(--text-secondary); margin-top: 0.5rem;">
+                        ${formatarPercentual(percentualLucro)}
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+
+            document.getElementById('comparison-results').style.display = 'block';
+        }
+
+        function salvarOperacao() {
+            if (!ultimoCalculo) {
+                alert('Por favor, calcule uma operação primeiro.');
+                return;
+            }
+
+            const operacao = {
+                ...ultimoCalculo,
+                data: new Date().toISOString(),
+                id: Date.now()
+            };
+
+            let historico = JSON.parse(localStorage.getItem('daytradeHistory') || '[]');
+            historico.unshift(operacao);
+            localStorage.setItem('daytradeHistory', JSON.stringify(historico));
+
+            alert('✅ Operação salva no histórico!');
+            
+            document.getElementById('ticker').value = '';
+            document.getElementById('buyQty').value = '';
+            document.getElementById('buyPrice').value = '';
+            document.getElementById('sellQty').value = '';
+            document.getElementById('sellPrice').value = '';
+            document.getElementById('results').classList.remove('show');
+            ultimoCalculo = null;
+        }
+
+        function carregarHistorico() {
+            const historico = JSON.parse(localStorage.getItem('daytradeHistory') || '[]');
+            const container = document.getElementById('history-list');
+
+            if (historico.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📭</div>
+                        <p>Nenhuma operação registrada ainda</p>
+                        <p style="font-size: 0.85rem; margin-top: 0.5rem;">Faça uma operação e salve no histórico para começar</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = historico.map(op => {
+                const classe = op.lucroLiquido >= 0 ? 'profit' : 'loss';
+                return `
+                    <div class="history-item ${classe}" data-ticker="${op.ticker}" data-type="${classe}">
+                        <div class="history-header">
+                            <div class="history-ticker">${op.ticker || 'N/A'}</div>
+                            <div class="history-date">${formatarData(op.data)}</div>
+                        </div>
+                        <div class="history-details">
+                            <div class="history-detail">
+                                Compra: <strong>${op.buyQty} @ ${formatarMoeda(op.buyPrice)}</strong>
+                            </div>
+                            <div class="history-detail">
+                                Venda: <strong>${op.sellQty} @ ${formatarMoeda(op.sellPrice)}</strong>
+                            </div>
+                            <div class="history-detail">
+                                Custos: <strong>${formatarMoeda(op.custoTotal)}</strong>
+                            </div>
+                            <div class="history-detail">
+                                Resultado: <strong style="color: ${op.lucroLiquido >= 0 ? 'var(--accent-green)' : 'var(--accent-red)'}">
+                                    ${formatarMoeda(op.lucroLiquido)} (${formatarPercentual(op.percentualLucro)})
+                                </strong>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function filtrarHistorico() {
+            const tickerFilter = document.getElementById('filter-ticker').value.toUpperCase();
+            const typeFilter = document.getElementById('filter-type').value;
+
+            document.querySelectorAll('.history-item').forEach(item => {
+                const ticker = item.dataset.ticker;
+                const type = item.dataset.type;
+
+                const matchTicker = !tickerFilter || ticker.includes(tickerFilter);
+                const matchType = typeFilter === 'all' || type === typeFilter;
+
+                item.style.display = (matchTicker && matchType) ? 'block' : 'none';
+            });
+        }
+
+        function limparHistorico() {
+            if (confirm('⚠️ Tem certeza que deseja limpar todo o histórico? Esta ação não pode ser desfeita.')) {
+                localStorage.removeItem('daytradeHistory');
+                carregarHistorico();
+                atualizarDashboard();
+                alert('🗑️ Histórico limpo com sucesso!');
+            }
+        }
+
+        function exportarCSV() {
+            const historico = JSON.parse(localStorage.getItem('daytradeHistory') || '[]');
+            
+            if (historico.length === 0) {
+                alert('Nenhuma operação para exportar.');
+                return;
+            }
+
+            let csv = 'Data,Ticker,Qtd Compra,Preço Compra,Qtd Venda,Preço Venda,Total Compra,Total Venda,Resultado Bruto,Custos,Lucro Líquido,Percentual\n';
+            
+            historico.forEach(op => {
+                csv += `${formatarData(op.data)},${op.ticker},${op.buyQty},${op.buyPrice},${op.sellQty},${op.sellPrice},${op.totalCompra},${op.totalVenda},${op.resultadoBruto},${op.custoTotal},${op.lucroLiquido},${op.percentualLucro}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `daytrade_historico_${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+        }
+
+        function atualizarDashboard() {
+            const historico = JSON.parse(localStorage.getItem('daytradeHistory') || '[]');
+
+            if (historico.length === 0) {
+                document.getElementById('stat-total').textContent = '0';
+                document.getElementById('stat-winrate').textContent = '0%';
+                document.getElementById('stat-profit').textContent = formatarMoeda(0);
+                document.getElementById('stat-loss').textContent = formatarMoeda(0);
+                document.getElementById('stat-net').textContent = formatarMoeda(0);
+                document.getElementById('stat-avg-profit').textContent = formatarMoeda(0);
+                document.getElementById('stat-avg-loss').textContent = formatarMoeda(0);
+                document.getElementById('stat-payoff').textContent = '0.00';
+                document.getElementById('stat-best').textContent = formatarMoeda(0);
+                document.getElementById('stat-worst').textContent = formatarMoeda(0);
+                document.getElementById('stat-profit-factor').textContent = '0.00';
+                document.getElementById('stat-streak').textContent = '0 vitórias';
+                return;
+            }
+
+            const totalOps = historico.length;
+            const wins = historico.filter(op => op.lucroLiquido > 0);
+            const losses = historico.filter(op => op.lucroLiquido < 0);
+            
+            const totalProfit = wins.reduce((sum, op) => sum + op.lucroLiquido, 0);
+            const totalLoss = Math.abs(losses.reduce((sum, op) => sum + op.lucroLiquido, 0));
+            const netResult = totalProfit - totalLoss;
+            
+            const winRate = (wins.length / totalOps) * 100;
+            const avgProfit = wins.length > 0 ? totalProfit / wins.length : 0;
+            const avgLoss = losses.length > 0 ? totalLoss / losses.length : 0;
+            const payoff = avgLoss > 0 ? avgProfit / avgLoss : 0;
+            const profitFactor = totalLoss > 0 ? totalProfit / totalLoss : 0;
+
+            const bestTrade = historico.reduce((max, op) => op.lucroLiquido > max ? op.lucroLiquido : max, historico[0]?.lucroLiquido || 0);
+            const worstTrade = historico.reduce((min, op) => op.lucroLiquido < min ? op.lucroLiquido : min, historico[0]?.lucroLiquido || 0);
+
+            let currentStreak = 0;
+            let maxStreak = 0;
+            historico.forEach(op => {
+                if (op.lucroLiquido > 0) {
+                    currentStreak++;
+                    maxStreak = Math.max(maxStreak, currentStreak);
+                } else {
+                    currentStreak = 0;
+                }
+            });
+
+            document.getElementById('stat-total').textContent = totalOps;
+            document.getElementById('stat-winrate').textContent = formatarPercentual(winRate);
+            document.getElementById('stat-winrate').className = 'stat-value ' + (winRate >= 50 ? 'green' : 'red');
+            
+            document.getElementById('stat-profit').textContent = formatarMoeda(totalProfit);
+            document.getElementById('stat-loss').textContent = formatarMoeda(totalLoss);
+            
+            document.getElementById('stat-net').textContent = formatarMoeda(netResult);
+            document.getElementById('stat-net').className = 'stat-value ' + (netResult >= 0 ? 'green' : 'red');
+            
+            document.getElementById('stat-avg-profit').textContent = formatarMoeda(avgProfit);
+            document.getElementById('stat-avg-loss').textContent = formatarMoeda(avgLoss);
+            document.getElementById('stat-payoff').textContent = payoff.toFixed(2);
+            document.getElementById('stat-best').textContent = formatarMoeda(bestTrade);
+            document.getElementById('stat-worst').textContent = formatarMoeda(worstTrade);
+            document.getElementById('stat-profit-factor').textContent = profitFactor.toFixed(2);
+            document.getElementById('stat-streak').textContent = `${maxStreak} vitória${maxStreak !== 1 ? 's' : ''}`;
+
+            desenharCurvaCapital(historico);
+        }
+
+        function desenharCurvaCapital(historico) {
+            const canvas = document.getElementById('equity-curve');
+            const container = canvas.parentElement;
+            const placeholder = container.querySelector('.chart-placeholder');
+
+            if (historico.length === 0) {
+                placeholder.style.display = 'flex';
+                canvas.style.display = 'none';
+                return;
+            }
+
+            placeholder.style.display = 'none';
+            canvas.style.display = 'block';
+            
+            canvas.width = container.offsetWidth - 60;
+            canvas.height = 300;
+            
+            const ctx = canvas.getContext('2d');
+            
+            let capital = 0;
+            const curva = historico.reverse().map(op => {
+                capital += op.lucroLiquido;
+                return capital;
+            });
+            historico.reverse();
+
+            const minCapital = Math.min(0, ...curva);
+            const maxCapital = Math.max(0, ...curva);
+            const range = maxCapital - minCapital || 1;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            ctx.strokeStyle = 'rgba(139, 146, 168, 0.1)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= 5; i++) {
+                const y = (canvas.height / 5) * i;
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+
+            const zeroY = canvas.height - ((0 - minCapital) / range * canvas.height);
+            ctx.strokeStyle = 'rgba(139, 146, 168, 0.3)';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.moveTo(0, zeroY);
+            ctx.lineTo(canvas.width, zeroY);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            const stepX = canvas.width / (curva.length - 1 || 1);
+            
+            ctx.beginPath();
+            curva.forEach((valor, index) => {
+                const x = index * stepX;
+                const y = canvas.height - ((valor - minCapital) / range * canvas.height);
+                
+                if (index === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            });
+
+            ctx.strokeStyle = capital >= 0 ? '#00ff88' : '#ff3366';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            ctx.lineTo(canvas.width, canvas.height);
+            ctx.lineTo(0, canvas.height);
+            ctx.closePath();
+            
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, capital >= 0 ? 'rgba(0, 255, 136, 0.2)' : 'rgba(255, 51, 102, 0.2)');
+            gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+            ctx.fillStyle = gradient;
+            ctx.fill();
+
+            curva.forEach((valor, index) => {
+                const x = index * stepX;
+                const y = canvas.height - ((valor - minCapital) / range * canvas.height);
+                
+                ctx.beginPath();
+                ctx.arc(x, y, 4, 0, Math.PI * 2);
+                ctx.fillStyle = valor >= 0 ? '#00ff88' : '#ff3366';
+                ctx.fill();
+                ctx.strokeStyle = '#0a0e1a';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            });
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            carregarConfiguracoes();
+            carregarHistorico();
+            atualizarDashboard();
+        });
+
         document.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
+            if (e.key === 'Enter' && document.getElementById('tab-operacao').classList.contains('active')) {
                 calcular();
             }
         });
