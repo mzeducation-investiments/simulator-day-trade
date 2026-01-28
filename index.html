@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador Day Trade</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=IBM+Plex+Mono:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a0e1a;
+            --bg-card: #161b2e;
+            --bg-input: #1a2035;
+            --accent-green: #00ff88;
+            --accent-red: #ff3366;
+            --accent-blue: #00d4ff;
+            --text-primary: #e8edf5;
+            --text-secondary: #8b92a8;
+            --border-color: #2a3348;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'IBM Plex Mono', monospace;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(0, 255, 136, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(0, 212, 255, 0.05) 0%, transparent 50%);
+            padding: 2rem;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--accent-green) 0%, var(--accent-blue) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -2px;
+            margin-bottom: 0.5rem;
+            animation: glow 3s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% {
+                filter: drop-shadow(0 0 20px rgba(0, 255, 136, 0.3));
+            }
+            50% {
+                filter: drop-shadow(0 0 40px rgba(0, 255, 136, 0.5));
+            }
+        }
+
+        .subtitle {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent-green), var(--accent-blue));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .card:hover::before {
+            opacity: 1;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 48px rgba(0, 255, 136, 0.15);
+        }
+
+        .card-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--accent-blue);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        input {
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.9rem 1rem;
+            color: var(--text-primary);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: var(--accent-green);
+            box-shadow: 0 0 0 3px rgba(0, 255, 136, 0.1);
+            background: var(--bg-dark);
+        }
+
+        input::placeholder {
+            color: var(--text-secondary);
+            opacity: 0.5;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--accent-green) 0%, var(--accent-blue) 100%);
+            border: none;
+            border-radius: 8px;
+            padding: 1rem 2rem;
+            color: var(--bg-dark);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            margin-top: 1rem;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s ease, height 0.6s ease;
+        }
+
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 255, 136, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .results {
+            display: none;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .results.show {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .result-row:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .result-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .profit-section {
+            margin-top: 2rem;
+            padding: 2rem;
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.1) 0%, rgba(0, 212, 255, 0.1) 100%);
+            border-radius: 12px;
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            text-align: center;
+        }
+
+        .profit-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 0.5rem;
+        }
+
+        .profit-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-bottom: 0.5rem;
+        }
+
+        .profit-value.positive {
+            color: var(--accent-green);
+            text-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+        }
+
+        .profit-value.negative {
+            color: var(--accent-red);
+            text-shadow: 0 0 20px rgba(255, 51, 102, 0.5);
+        }
+
+        .profit-percentage {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        .costs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .cost-card {
+            background: var(--bg-input);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .cost-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .cost-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--accent-blue);
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .profit-value {
+                font-size: 2rem;
+            }
+
+            body {
+                padding: 1rem;
+            }
+        }
+
+        .ticker-display {
+            text-align: center;
+            margin: 1rem 0;
+            padding: 1rem;
+            background: var(--bg-input);
+            border-radius: 8px;
+            border-left: 3px solid var(--accent-green);
+        }
+
+        .ticker-symbol {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--accent-green);
+            letter-spacing: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>DAY TRADE</h1>
+            <div class="subtitle">Simulador de Operações</div>
+        </header>
+
+        <div class="card">
+            <div class="card-title">📊 Dados da Operação</div>
+            
+            <div class="form-group">
+                <label for="ticker">Nome da Empresa / Ticker</label>
+                <input type="text" id="ticker" placeholder="Ex: PETR4, VALE3, ITUB4" />
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="buyQty">Quantidade Comprada</label>
+                    <input type="number" id="buyQty" placeholder="100" min="0" step="1" />
+                </div>
+
+                <div class="form-group">
+                    <label for="buyPrice">Preço de Compra (R$)</label>
+                    <input type="number" id="buyPrice" placeholder="25.50" min="0" step="0.01" />
+                </div>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="sellQty">Quantidade Vendida</label>
+                    <input type="number" id="sellQty" placeholder="100" min="0" step="1" />
+                </div>
+
+                <div class="form-group">
+                    <label for="sellPrice">Preço de Venda (R$)</label>
+                    <input type="number" id="sellPrice" placeholder="26.00" min="0" step="0.01" />
+                </div>
+            </div>
+
+            <button class="btn" onclick="calcular()">
+                <span style="position: relative; z-index: 1;">Calcular Resultado</span>
+            </button>
+        </div>
+
+        <div id="results" class="results">
+            <div class="card">
+                <div class="ticker-display" id="tickerDisplay" style="display: none;">
+                    <div class="ticker-symbol" id="tickerSymbol"></div>
+                </div>
+
+                <div class="card-title">💰 Resumo da Operação</div>
+                
+                <div class="result-row">
+                    <span class="result-label">Total Comprado</span>
+                    <span class="result-value" id="totalCompra">R$ 0,00</span>
+                </div>
+
+                <div class="result-row">
+                    <span class="result-label">Total Vendido</span>
+                    <span class="result-value" id="totalVenda">R$ 0,00</span>
+                </div>
+
+                <div class="result-row">
+                    <span class="result-label">Resultado Bruto</span>
+                    <span class="result-value" id="resultadoBruto">R$ 0,00</span>
+                </div>
+
+                <div class="costs-grid">
+                    <div class="cost-card">
+                        <div class="cost-label">Liquidação/CCP (0,018%)</div>
+                        <div class="cost-value" id="custoLiquidacao">R$ 0,00</div>
+                    </div>
+
+                    <div class="cost-card">
+                        <div class="cost-label">Emolumentos (0,005%)</div>
+                        <div class="cost-value" id="custoEmolumentos">R$ 0,00</div>
+                    </div>
+
+                    <div class="cost-card">
+                        <div class="cost-label">Total de Custos</div>
+                        <div class="cost-value" id="custoTotal">R$ 0,00</div>
+                    </div>
+                </div>
+
+                <div class="profit-section">
+                    <div class="profit-label">Lucro/Prejuízo Líquido</div>
+                    <div class="profit-value" id="lucroLiquido">R$ 0,00</div>
+                    <div class="profit-percentage" id="percentualLucro">0.00%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function formatarMoeda(valor) {
+            return valor.toLocaleString('pt-BR', {
+                style: 'currency',
+                currency: 'BRL',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+
+        function formatarPercentual(valor) {
+            return valor.toFixed(2) + '%';
+        }
+
+        function calcular() {
+            // Obter valores dos inputs
+            const ticker = document.getElementById('ticker').value.trim().toUpperCase();
+            const buyQty = parseFloat(document.getElementById('buyQty').value) || 0;
+            const buyPrice = parseFloat(document.getElementById('buyPrice').value) || 0;
+            const sellQty = parseFloat(document.getElementById('sellQty').value) || 0;
+            const sellPrice = parseFloat(document.getElementById('sellPrice').value) || 0;
+
+            // Validação básica
+            if (buyQty <= 0 || buyPrice <= 0 || sellQty <= 0 || sellPrice <= 0) {
+                alert('Por favor, preencha todos os campos com valores válidos.');
+                return;
+            }
+
+            // Cálculos
+            const totalCompra = buyQty * buyPrice;
+            const totalVenda = sellQty * sellPrice;
+            const resultadoBruto = totalVenda - totalCompra;
+
+            // Custos operacionais
+            const baseCalculo = totalCompra + totalVenda;
+            const custoLiquidacao = baseCalculo * 0.00018; // 0,018%
+            const custoEmolumentos = baseCalculo * 0.00005; // 0,005%
+            const custoTotal = custoLiquidacao + custoEmolumentos;
+
+            // Lucro líquido
+            const lucroLiquido = resultadoBruto - custoTotal;
+            
+            // Percentual de lucro sobre o valor investido
+            const percentualLucro = (lucroLiquido / totalCompra) * 100;
+
+            // Exibir ticker se fornecido
+            if (ticker) {
+                document.getElementById('tickerDisplay').style.display = 'block';
+                document.getElementById('tickerSymbol').textContent = ticker;
+            } else {
+                document.getElementById('tickerDisplay').style.display = 'none';
+            }
+
+            // Atualizar valores na interface
+            document.getElementById('totalCompra').textContent = formatarMoeda(totalCompra);
+            document.getElementById('totalVenda').textContent = formatarMoeda(totalVenda);
+            document.getElementById('resultadoBruto').textContent = formatarMoeda(resultadoBruto);
+            document.getElementById('custoLiquidacao').textContent = formatarMoeda(custoLiquidacao);
+            document.getElementById('custoEmolumentos').textContent = formatarMoeda(custoEmolumentos);
+            document.getElementById('custoTotal').textContent = formatarMoeda(custoTotal);
+            
+            const lucroElement = document.getElementById('lucroLiquido');
+            lucroElement.textContent = formatarMoeda(lucroLiquido);
+            
+            // Adicionar classe de cor baseada no resultado
+            lucroElement.className = 'profit-value';
+            if (lucroLiquido > 0) {
+                lucroElement.classList.add('positive');
+            } else if (lucroLiquido < 0) {
+                lucroElement.classList.add('negative');
+            }
+
+            document.getElementById('percentualLucro').textContent = formatarPercentual(percentualLucro);
+
+            // Mostrar seção de resultados
+            document.getElementById('results').classList.add('show');
+
+            // Scroll suave para os resultados
+            setTimeout(() => {
+                document.getElementById('results').scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'nearest' 
+                });
+            }, 100);
+        }
+
+        // Permitir calcular ao pressionar Enter
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                calcular();
+            }
+        });
+    </script>
+</body>
+</html>
